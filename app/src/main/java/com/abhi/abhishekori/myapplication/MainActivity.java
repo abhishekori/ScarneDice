@@ -1,11 +1,15 @@
 package com.abhi.abhishekori.myapplication;
 
+import android.support.annotation.BoolRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
     Button Broll,Bhold,Breset;
     String your="your";
     String comp = "comp";
+    int tempYourScore=0,totalYourScore=0,tempCompScore=0,totalCompScore=0,turn=0;
+
 
     int diceFaces[]={R.drawable.dice1,R.drawable.dice2,R.drawable.dice3,R.drawable.dice4,R.drawable.dice5,R.drawable.dice6};
 
@@ -56,25 +62,98 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public int getRandomNumber(){
+        return (int)(Math.random()*6);
+    }
+
+    public void setDiceFace(int number){
+        IVdicefaces.setImageResource(diceFaces[number]);
+    }
+
+    public boolean winnerDecided(){
+        if(totalCompScore>=100){
+            toast("Computer is winner");
+            return true;
+        }
+        if(totalYourScore>=100){
+            toast("You are the winner");
+            return true;
+        }
+
+        return false;
+    }
+
     public void rollClick(String whos){
+        int random=getRandomNumber();
+        Log.d("random",""+getRandomNumber());
 
         switch (whos){
             case "your":
+
+                if(random!=0){
+                    tempYourScore=tempYourScore+random+1;
+                    //updateScore(tempCompScore,your);
+                    setDiceFace(random);
+                }else{
+                    toast("you got 1");
+                    tempYourScore=0;
+                    turn=1;
+                    //totalYourScore=totalCompScore+tempYourScore;
+                    updateScore(totalYourScore,your);
+                    if(!winnerDecided()){
+                        rollClick(comp);
+                    }
+
+                }
+
                 break;
 
             case "comp":
+                if(random!=0){
+                    tempCompScore=tempCompScore+random+1;
+                    toast(""+(random+1));
+                    setDiceFace(random);
+                    if(tempCompScore>20){
+                        holdClick(comp);
+                    }else {
+                        if(!winnerDecided()){
+                            rollClick(comp);
+                        }
+
+                    }
+                }else{
+                    tempCompScore=0;
+                    turn=0;
+                    updateScore(totalCompScore,your);
+                    toast("Your turn now");
+                }
                 break;
         }
 
+    }
+    public void toast(String toastMsg){
+        Toast.makeText(getApplicationContext(),toastMsg,Toast.LENGTH_LONG).show();
     }
 
     public void holdClick(String whos){
 
         switch (whos){
             case "your":
+                toast("the temp score of yours "+tempYourScore);
+                totalYourScore=totalYourScore+tempYourScore;
+                tempYourScore=0;
+                updateScore(totalYourScore,your);
+                if(!winnerDecided()){
+                    rollClick(comp);
+                }
+
                 break;
 
             case "comp":
+
+                totalCompScore=totalCompScore+tempCompScore;
+                updateScore(totalCompScore,comp);
+                toast("Your turn now");
                 break;
         }
 
@@ -93,16 +172,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateScore(int score,String whosScore){
-        String currentYourScore = TVyourScore.getText().toString();
-        String currentCompScore = TVcompScore.getText().toString();
+
         switch (whosScore){
 
-            case "your":currentYourScore+=score;
-                TVyourScore.setText(currentYourScore);
+            case "your":
+                TVyourScore.setText(score+"");
                 break;
 
-            case "comp":currentCompScore+=score;
-                TVcompScore.setText(currentCompScore);
+            case "comp":
+                TVcompScore.setText(score+"");
                 break;
 
         }
