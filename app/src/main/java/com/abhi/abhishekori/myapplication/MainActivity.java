@@ -11,6 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class MainActivity extends AppCompatActivity {
 
     TextView TVyourScore,TVcompScore;
@@ -19,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     Button Broll,Bhold,Breset;
     String your="your";
     String comp = "comp";
-    int tempYourScore=0,totalYourScore=0,tempCompScore=0,totalCompScore=0,turn=0;
+    int tempYourScore,totalYourScore,tempCompScore,totalCompScore,turn;
 
 
     int diceFaces[]={R.drawable.dice1,R.drawable.dice2,R.drawable.dice3,R.drawable.dice4,R.drawable.dice5,R.drawable.dice6};
@@ -34,9 +37,13 @@ public class MainActivity extends AppCompatActivity {
         Broll = (Button) findViewById(R.id.xml_rollButton);
         Bhold = (Button) findViewById(R.id.xml_holdButton);
         Breset = (Button) findViewById(R.id.xml_resetButton);
+        tempCompScore=0;
+        tempYourScore=0;
+        totalYourScore=0;
+        totalCompScore=0;
 
-        updateScore(0,your);
-        updateScore(0,comp);
+       // updateScore(0,your);
+       // updateScore(0,comp);
         IVdicefaces.setImageResource(diceFaces[0]);
 
         Broll.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public int getRandomNumber(){
-        return (int)(Math.random()*6);
+        Random ran = new Random();
+        //int x =
+        return ran.nextInt(6);
     }
 
     public void setDiceFace(int number){
@@ -85,13 +94,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void rollClick(String whos){
         int random=getRandomNumber();
-        Log.d("random",""+getRandomNumber());
+
 
         switch (whos){
             case "your":
+                Log.d("random","you got "+(random+1));
 
                 if(random!=0){
-                    tempYourScore=tempYourScore+random+1;
+                    tempYourScore=tempYourScore+(random+1);
                     //updateScore(tempCompScore,your);
                     setDiceFace(random);
                 }else{
@@ -101,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     //totalYourScore=totalCompScore+tempYourScore;
                     updateScore(totalYourScore,your);
                     if(!winnerDecided()){
+                        Log.d("random","comp turn now");
                         rollClick(comp);
                     }
 
@@ -109,14 +120,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "comp":
+                Log.d("random","comp got "+(random+1));
                 if(random!=0){
-                    tempCompScore=tempCompScore+random+1;
-                    toast(""+(random+1));
+                    tempCompScore=tempCompScore+(random+1);
+                   // toast(""+(random+1));
                     setDiceFace(random);
                     if(tempCompScore>20){
+                        //tempCompScore=tempCompScore-(random+1);
+                        Log.d("random","score went more than 20 holding now original score"+totalCompScore);
                         holdClick(comp);
                     }else {
                         if(!winnerDecided()){
+                            Log.d("random","comp clicking again");
                             rollClick(comp);
                         }
 
@@ -124,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     tempCompScore=0;
                     turn=0;
-                    updateScore(totalCompScore,your);
+                    //updateScore(totalCompScore,comp);
                     toast("Your turn now");
                 }
                 break;
@@ -139,11 +154,13 @@ public class MainActivity extends AppCompatActivity {
 
         switch (whos){
             case "your":
-                toast("the temp score of yours "+tempYourScore);
+                Log.d("random","you hold your temp score is "+tempYourScore);
                 totalYourScore=totalYourScore+tempYourScore;
                 tempYourScore=0;
+                Log.d("random","total u :"+totalYourScore);
                 updateScore(totalYourScore,your);
                 if(!winnerDecided()){
+                    Log.d("random","comp turn now");
                     rollClick(comp);
                 }
 
@@ -152,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
             case "comp":
 
                 totalCompScore=totalCompScore+tempCompScore;
+                tempCompScore=0;
                 updateScore(totalCompScore,comp);
                 toast("Your turn now");
                 break;
@@ -176,11 +194,12 @@ public class MainActivity extends AppCompatActivity {
         switch (whosScore){
 
             case "your":
-                TVyourScore.setText(score+"");
+                //Log.d("random","update score :"+score);
+                TVyourScore.setText("your score is :"+score);
                 break;
 
             case "comp":
-                TVcompScore.setText(score+"");
+                TVcompScore.setText("comp score is :"+score);
                 break;
 
         }
